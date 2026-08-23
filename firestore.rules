@@ -17,7 +17,7 @@ service cloud.firestore {
       return isAuthenticated() && (
         isSuperAdmin() ||
         (exists(/databases/$(database)/documents/users/$(request.auth.uid)) &&
-         get(/databases/$(request.auth.uid)).data.role in [
+         get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role in [
            'director','editor','editorial','admin','book_editor',
            'blog_editor','other_manager'
          ])
@@ -47,7 +47,7 @@ service cloud.firestore {
     match /shabdkosh/{id} { allow read: if true; allow write: if isStaffOrAdmin(); }
     match /paheli/{id} { allow read: if true; allow write: if isStaffOrAdmin(); }
     match /lokgeet/{id} { allow read: if true; allow write: if isStaffOrAdmin(); }
-    match /quizzes/{id} { allow read: true; allow write: if isStaffOrAdmin(); }
+    match /quizzes/{id} { allow read: if true; allow write: if isStaffOrAdmin(); }
     match /quiz_certificates/{id} {
       allow create, read: if true;
       allow update, delete: if isStaffOrAdmin();
