@@ -62,10 +62,18 @@ service cloud.firestore {
     }
     match /users/{userId} {
       allow read: if isAuthenticated() && (request.auth.uid == userId || isStaffOrAdmin());
-      allow create: if isAuthenticated() && (request.auth.uid == userId || isStaffOrAdmin());
-      allow update, delete: if isStaffOrAdmin() ||
-        (isAuthenticated() && request.auth.uid == userId &&
-         request.resource.data.role == resource.data.role);
+      allow create: if isStaffOrAdmin() || (
+        isAuthenticated() &&
+        request.auth.uid == userId &&
+        request.resource.data.role == 'public' &&
+        request.resource.data.email == request.auth.token.email
+      );
+      allow update, delete: if isStaffOrAdmin() || (
+        isAuthenticated() &&
+        request.auth.uid == userId &&
+        request.resource.data.role == resource.data.role &&
+        request.resource.data.email == resource.data.email
+      );
     }
     match /pages/{id} { allow read: if true; allow write: if isStaffOrAdmin(); }
     match /media/{id} { allow read: if true; allow write: if isStaffOrAdmin(); }
