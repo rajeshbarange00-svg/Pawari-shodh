@@ -1,0 +1,58 @@
+name: Auth Fallback Hardening V2
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Patch legacy password bypass
+        shell: python
+        run: |
+          from pathlib import Path
+
+          path = Path('src/lib/AuthContext.tsx')
+          text = path.read_text(encoding='utf-8')
+          catch_start = text.find("    } catch (firebaseErr: any) {")
+          if catch_start == -1:
+              print('Firebase catch block not found.')
+              raise SystemExit(0)
+
+          end_marker = "    throw new Error('लॉगिन विफल रहा। कृपया अपनी क्रेडेंशियल जांचें।');"
+          end_pos = text.find(end_marker, catch_start)
+          close_pos = text.find("\n  };", end_pos)
+          if end_pos == -1 or close_pos == -1:
+              print('Legacy login block markers not found.')
+              raise SystemExit(0)
+
+          replacement = """    } catch (firebaseErr: any) {
+      console.error('Firebase Auth login failed:', firebaseErr);
+      const code = firebaseErr?.code;
+      if (code === 'auth/wrong-password' || code === 'auth/invalid-credential' || code === 'auth/user-not-found') {
+        throw new Error('गलत ईमेल या पासवर्ड।');
+      }
+      throw new Error(firebaseErr?.message || 'लॉगिन विफल रहा। कृपया अपनी क्रेडेंशियल जांचें।');"""
+
+          new_text = text[:catch_start] + replacement + text[close_pos:]
+          if new_text != text:
+              path.write_text(new_text, encoding='utf-8')
+              print('Legacy password bypass removed.')
+          else:
+              print('No change needed.')
+
+      - name: Commit
+        run: |
+          if git diff --quiet; then exit 0; fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add src/lib/AuthContext.tsx
+          git commit -m "security: remove legacy auth password bypass"
+          git push
