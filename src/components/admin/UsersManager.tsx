@@ -100,7 +100,7 @@ export const UsersManager: React.FC = () => {
     setEditingUser(user);
     setEditDisplayName(user.display_name || '');
     setEditEmail(user.email || '');
-    setEditPassword(user.password || '');
+    setEditPassword('');
     setEditRole(user.role || 'editorial');
     setEditStatus(user.status || 'active');
     setEditAssignedModules(
@@ -124,7 +124,6 @@ export const UsersManager: React.FC = () => {
       await updateUser(editingUser.uid, {
         display_name: editDisplayName.trim(),
         email: editEmail.trim().toLowerCase(),
-        password: editPassword,
         role: editRole,
         status: editStatus,
         assigned_modules: editAssignedModules
@@ -531,7 +530,7 @@ export const UsersManager: React.FC = () => {
               <div>
                 <label className="block font-bold text-slate-700 mb-1 flex items-center justify-between">
                   <span>Login Password</span>
-                  <span className="text-[10px] text-slate-400 font-normal">Stored for CMS login verification</span>
+                  <span className="text-[10px] text-slate-400 font-normal">Managed securely by Firebase Authentication</span>
                 </label>
                 <input
                   type="text"

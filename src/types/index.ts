@@ -39,7 +39,6 @@ export interface UserProfile {
   display_name: string;
   role: Role;
   status: 'active' | 'inactive' | 'suspended' | 'disabled';
-  password?: string;
   created_at: string;
   assigned_modules?: string[];
 }
