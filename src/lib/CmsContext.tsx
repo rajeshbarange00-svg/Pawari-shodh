@@ -551,12 +551,18 @@ export const CmsProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   // Audit Activity Logger
   const logActivity = async (entry: Omit<ActivityLogItem, 'id' | 'timestamp'>) => {
     const currentUser = auth.currentUser;
+    let localProfile: any = null;
+    try {
+      localProfile = JSON.parse(localStorage.getItem('pawari_cms_user') || 'null');
+    } catch (e) {}
+    const actorEmail = currentUser?.email || localProfile?.email || '';
+    const actorName = currentUser?.displayName || localProfile?.display_name || actorEmail || 'Admin User';
     const newLog: ActivityLogItem = {
       ...entry,
       id: 'log_' + Date.now() + '_' + Math.floor(Math.random() * 1000),
       timestamp: new Date().toISOString(),
-      performedBy: entry.performedBy || currentUser?.displayName || currentUser?.email || 'Admin User',
-      performedByEmail: entry.performedByEmail || currentUser?.email || ''
+      performedBy: entry.performedBy || actorName,
+      performedByEmail: entry.performedByEmail || actorEmail
     };
 
     setActivityLogs(prev => [newLog, ...prev]);

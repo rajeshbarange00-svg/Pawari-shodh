@@ -62,7 +62,7 @@ export const UsersManager: React.FC = () => {
   const [savingEdit, setSavingEdit] = useState(false);
 
   // Delete User confirmation state
-  const [deletingUser, setDeletingUser] = useState<{ uid: string; name: string } | null>(null);
+  const [deletingUser, setDeletingUser] = useState<{ uid: string; name: string; email: string } | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
 
   const handleCreateUser = async (e: React.FormEvent) => {
@@ -162,7 +162,7 @@ export const UsersManager: React.FC = () => {
       logActivity({
         category: 'users',
         action: 'delete',
-        title: `Deleted User Account (${deletingUser.email})`,
+        title: `Deleted User Account (${deletingUser.email || deletingUser.name})`,
         details: `Removed account for ${deletingUser.name} (${deletingUser.uid})`
       }).catch(console.warn);
 
@@ -469,7 +469,7 @@ export const UsersManager: React.FC = () => {
                         {!isSuperAdminEmail && (
                           <button
                             type="button"
-                            onClick={() => setDeletingUser({ uid: user.uid, name: user.display_name || user.email })}
+                            onClick={() => setDeletingUser({ uid: user.uid, name: user.display_name || user.email, email: user.email || '' })}
                             title="Delete user account"
                             className="px-2.5 py-1 bg-slate-50 hover:bg-red-50 text-slate-600 hover:text-red-700 font-bold border border-slate-200 hover:border-red-200 rounded-lg transition flex items-center space-x-1"
                           >

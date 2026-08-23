@@ -511,24 +511,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           }
         }
       } else {
-        // If not authenticated via Firebase Auth, retain local session if valid
-        const saved = localStorage.getItem('pawari_cms_user');
-        if (saved) {
-          try {
-            const parsed = JSON.parse(saved);
-            const isOwner = parsed?.email && AUTHORIZED_OWNER_EMAILS.some(e => e.toLowerCase() === parsed.email.toLowerCase());
-            if (parsed && parsed.email && (isOwner || parsed.status !== 'disabled')) {
-              setUserProfile(parsed);
-            } else {
-              setUserProfile(null);
-              localStorage.removeItem('pawari_cms_user');
-            }
-          } catch (e) {
-            setUserProfile(null);
-          }
-        } else {
-          setUserProfile(null);
-        }
+        localStorage.removeItem('pawari_cms_user');
+        setUserProfile(null);
       }
       setLoading(false);
     });
@@ -720,28 +704,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const cleanEmail = email.toLowerCase().trim();
     const isOwner = AUTHORIZED_OWNER_EMAILS.some(e => e.toLowerCase() === cleanEmail);
     if (!isOwner) {
-      throw new Error(`अनधिकृत खाता (${cleanEmail})! केवल अधिकृत संचालक (rupeshpawar10@gmail.com एवं rajeshbarange00@gmail.com) ही सुपर एडमिन लॉगिन कर सकते हैं।`);
+      throw new Error(`अनधिकृत खाता (${cleanEmail})! केवल अधिकृत संचालक ही सुपर एडमिन लॉगिन कर सकते हैं।`);
     }
-
-    if (!pin || pin.trim().length === 0) {
-      throw new Error('कृपया अपना सुरक्षा पासवर्ड / पिन दर्ज करें।');
-    }
-
-    const defaultName = cleanEmail.includes('rupesh') ? 'Prof. Rupesh Pawar' : 'Rajesh Barange';
-    const profile: UserProfile = {
-      uid: cleanEmail.includes('rupesh') ? 'super_admin_rupesh' : 'super_admin_rajesh',
-      email: cleanEmail,
-      display_name: defaultName,
-      role: 'super_admin',
-      status: 'active',
-      created_at: new Date().toISOString()
-    };
-    try {
-      await setDoc(doc(db, 'users', profile.uid), profile, { merge: true });
-    } catch (e) {}
-    setUserProfile(profile);
-    localStorage.setItem('pawari_cms_user', JSON.stringify(profile));
-    await refreshUsersList();
+    return login(cleanEmail, pin);
   };
 
   const directSuperAdminLogin = async (customEmail?: string, customName?: string) => {
@@ -790,11 +755,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       newUid = res.user.uid;
       await secondarySignOut(secondaryAuth);
     } catch (err: any) {
-      console.warn('Secondary auth user creation warning:', err);
+      console.error('Secondary auth user creation failed:', err);
       if (err?.code === 'auth/email-already-in-use') {
         throw new Error(`User with email "${cleanEmail}" already exists in Firebase Auth.`);
       }
-      newUid = 'user_' + Date.now() + '_' + Math.random().toString(36).substring(2, 7);
+      throw new Error('Firebase Auth could not create this account. Please try again.');
     }
 
     const newProf: UserProfile = {
@@ -803,7 +768,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       display_name: name.trim(),
       role,
       status: 'active',
-      password: pass,
       created_at: new Date().toISOString()
     };
 
