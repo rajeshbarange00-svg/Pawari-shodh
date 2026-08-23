@@ -1,0 +1,228 @@
+{
+  "entities": {
+    "settings": {
+      "title": "Journal Settings",
+      "description": "Global metadata, contact info, and portal configuration for the Journal CMS.",
+      "type": "object",
+      "properties": {
+        "journal_title_hindi": { "type": "string" },
+        "journal_title_english": { "type": "string" },
+        "issn_online": { "type": "string" },
+        "issn_print": { "type": "string" },
+        "publisher_hindi": { "type": "string" },
+        "publisher_english": { "type": "string" },
+        "contact_email": { "type": "string" }
+      }
+    },
+    "page": {
+      "title": "CMS Page",
+      "description": "Static content pages such as About Us, Author Guidelines, Ethics Policy, Director Message.",
+      "type": "object",
+      "properties": {
+        "title_hindi": { "type": "string" },
+        "title_english": { "type": "string" },
+        "content_hindi": { "type": "string" },
+        "content_english": { "type": "string" },
+        "banner_url": { "type": "string" },
+        "updated_at": { "type": "string" }
+      }
+    },
+    "homepageSection": {
+      "title": "Homepage Section Config",
+      "description": "Layout configuration and visibility toggle for homepage modules.",
+      "type": "object",
+      "properties": {
+        "key": { "type": "string" },
+        "title_hindi": { "type": "string" },
+        "title_english": { "type": "string" },
+        "visible": { "type": "boolean" },
+        "order": { "type": "number" }
+      }
+    },
+    "issue": {
+      "title": "Journal Volume / Issue",
+      "description": "Publication issues holding grouped articles.",
+      "type": "object",
+      "properties": {
+        "title_hindi": { "type": "string" },
+        "title_english": { "type": "string" },
+        "volume": { "type": "number" },
+        "issue_number": { "type": "number" },
+        "year": { "type": "number" },
+        "month": { "type": "string" },
+        "cover_image_url": { "type": "string" },
+        "status": { "type": "string", "enum": ["current", "published", "draft", "archived"] },
+        "publication_date": { "type": "string" },
+        "created_at": { "type": "string" }
+      }
+    },
+    "article": {
+      "title": "Academic Article",
+      "description": "Peer-reviewed research manuscript.",
+      "type": "object",
+      "properties": {
+        "title_hindi": { "type": "string" },
+        "title_english": { "type": "string" },
+        "slug": { "type": "string" },
+        "authors": { "type": "array" },
+        "abstract_hindi": { "type": "string" },
+        "abstract_english": { "type": "string" },
+        "keywords": { "type": "array" },
+        "doi": { "type": "string" },
+        "pdf_url": { "type": "string" },
+        "pdf_storage_path": { "type": "string" },
+        "volume": { "type": "number" },
+        "issue": { "type": "number" },
+        "year": { "type": "number" },
+        "month": { "type": "string" },
+        "category": { "type": "string" },
+        "language": { "type": "string" },
+        "status": { "type": "string", "enum": ["published", "draft", "under_review", "archived"] },
+        "created_at": { "type": "string" },
+        "updated_at": { "type": "string" }
+      },
+      "required": ["title_english", "status"]
+    },
+    "editorialBoardMember": {
+      "title": "Editorial Board Personnel",
+      "description": "Chief editors, directors, and review board members.",
+      "type": "object",
+      "properties": {
+        "name_hindi": { "type": "string" },
+        "name_english": { "type": "string" },
+        "role": { "type": "string" },
+        "designation_hindi": { "type": "string" },
+        "designation_english": { "type": "string" },
+        "affiliation_hindi": { "type": "string" },
+        "affiliation_english": { "type": "string" },
+        "email": { "type": "string" },
+        "photo_url": { "type": "string" },
+        "research_areas": { "type": "array", "items": { "type": "string" } },
+        "subject_areas": { "type": "array", "items": { "type": "string" } },
+        "bio_hindi": { "type": "string" },
+        "bio_english": { "type": "string" },
+        "order": { "type": "number" }
+      }
+    },
+    "announcement": {
+      "title": "Journal Announcement",
+      "description": "Public notices and call for papers.",
+      "type": "object",
+      "properties": {
+        "title_hindi": { "type": "string" },
+        "title_english": { "type": "string" },
+        "content_hindi": { "type": "string" },
+        "content_english": { "type": "string" },
+        "date": { "type": "string" },
+        "is_active": { "type": "boolean" }
+      }
+    },
+    "userProfile": {
+      "title": "User Profile",
+      "description": "User credentials, profile, and role-based access control.",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string" },
+        "email": { "type": "string" },
+        "display_name": { "type": "string" },
+        "role": { "type": "string", "enum": ["super_admin", "director", "editorial", "editor"] },
+        "status": { "type": "string" },
+        "created_at": { "type": "string" }
+      }
+    },
+    "book": {
+      "title": "Book / Research Monograph",
+      "description": "Published books and research monographs.",
+      "type": "object",
+      "properties": {
+        "title_hindi": { "type": "string" },
+        "title_english": { "type": "string" },
+        "author_hindi": { "type": "string" },
+        "author_english": { "type": "string" },
+        "category": { "type": "string" },
+        "publisher": { "type": "string" },
+        "publication_year": { "type": "number" },
+        "pages": { "type": "number" },
+        "isbn": { "type": "string" },
+        "cover_image": { "type": "string" },
+        "sample_pdf_url": { "type": "string" },
+        "synopsis_hindi": { "type": "string" },
+        "synopsis_english": { "type": "string" },
+        "price": { "type": "string" },
+        "table_of_contents_hindi": { "type": "array" }
+      }
+    },
+    "blog": {
+      "title": "Blog / Scholarly Essay",
+      "description": "Articles, research notes, and blog posts.",
+      "type": "object",
+      "properties": {
+        "title_hindi": { "type": "string" },
+        "title_english": { "type": "string" },
+        "author_hindi": { "type": "string" },
+        "author_english": { "type": "string" },
+        "author_avatar": { "type": "string" },
+        "date": { "type": "string" },
+        "read_time": { "type": "string" },
+        "category": { "type": "string" },
+        "cover_image": { "type": "string" },
+        "pdf_url": { "type": "string" },
+        "excerpt_hindi": { "type": "string" },
+        "excerpt_english": { "type": "string" },
+        "content_hindi": { "type": "string" },
+        "content_english": { "type": "string" },
+        "tags": { "type": "array" }
+      }
+    }
+  },
+  "firestore": {
+    "/books/{bookId}": {
+      "schema": { "$ref": "#/entities/book" },
+      "description": "Published books and monographs"
+    },
+    "/blogs/{blogId}": {
+      "schema": { "$ref": "#/entities/blog" },
+      "description": "Blog essays and articles"
+    },
+    "/settings/{settingId}": {
+      "schema": { "$ref": "#/entities/settings" },
+      "description": "Global journal configurations"
+    },
+    "/media/{mediaId}": {
+      "schema": { "$ref": "#/entities/mediaItem" },
+      "description": "Media library assets, research manuscripts, and figures"
+    },
+    "/pages/{pageId}": {
+      "schema": { "$ref": "#/entities/page" },
+      "description": "CMS static content pages"
+    },
+    "/homepage_sections/{sectionId}": {
+      "schema": { "$ref": "#/entities/homepageSection" },
+      "description": "Homepage dynamic layout settings"
+    },
+    "/issues/{issueId}": {
+      "schema": { "$ref": "#/entities/issue" },
+      "description": "Volume and issue releases"
+    },
+    "/articles/{articleId}": {
+      "schema": { "$ref": "#/entities/article" },
+      "description": "Published and draft research articles"
+    },
+    "/editorial_board/{memberId}": {
+      "schema": { "$ref": "#/entities/editorialBoardMember" },
+      "description": "Editorial board personnel"
+    },
+    "/editorial_members/{memberId}": {
+      "schema": { "$ref": "#/entities/editorialBoardMember" },
+      "description": "Editorial members alias collection"
+    },
+    "/announcements/{announcementId}": {
+      "schema": { "$ref": "#/entities/announcement" },
+      "description": "Call for papers and news updates"
+    },
+    "/users/{userId}": {
+      "schema": { "$ref": "#/entities/userProfile" },
+      "description": "RBAC role and account records"
+    }
+  }
+}

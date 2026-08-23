@@ -1,0 +1,171 @@
+@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700;800&family=Noto+Sans+Devanagari:wght@400;500;600;700&family=Rozha+One&family=Tiro+Devanagari+Sanskrit:ital@0;1&display=swap');
+@import "tailwindcss";
+
+:root {
+  --color-brand-primary: #420708;
+  --color-brand-secondary: #7f1d1d;
+  --color-brand-accent: #d97706;
+  --font-serif-devanagari: 'Tiro Devanagari Sanskrit', 'Rozha One', Georgia, serif;
+  --font-sans-devanagari: 'Noto Sans Devanagari', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-cinzel: 'Cinzel', serif;
+}
+
+/* Base resets & fonts */
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: var(--font-sans-devanagari);
+  background-color: #f8fafc;
+  color: #0f172a;
+  overflow-x: hidden;
+}
+
+/* Headings with Devanagari Serif Elegance */
+h1, h2, h3, h4, .font-serif {
+  font-family: var(--font-serif-devanagari);
+}
+
+.font-cinzel {
+  font-family: var(--font-cinzel);
+}
+
+/* Theme Presets */
+.theme-maroon_gold {
+  --color-brand-primary: #420708;
+  --color-brand-secondary: #7f1d1d;
+  --color-brand-accent: #d97706;
+}
+
+.theme-academic_navy {
+  --color-brand-primary: #0f172a;
+  --color-brand-secondary: #1e3a8a;
+  --color-brand-accent: #0284c7;
+}
+
+.theme-emerald_teal {
+  --color-brand-primary: #064e3b;
+  --color-brand-secondary: #0f766e;
+  --color-brand-accent: #0d9488;
+}
+
+.theme-slate_classic {
+  --color-brand-primary: #18181b;
+  --color-brand-secondary: #27272a;
+  --color-brand-accent: #dc2626;
+}
+
+.theme-burgundy_wine {
+  --color-brand-primary: #4c0519;
+  --color-brand-secondary: #831843;
+  --color-brand-accent: #e11d48;
+}
+
+/* Dynamic Brand Utility Classes */
+.bg-brand-primary {
+  background-color: var(--color-brand-primary);
+}
+
+.bg-brand-secondary {
+  background-color: var(--color-brand-secondary);
+}
+
+.text-brand-accent {
+  color: var(--color-brand-accent);
+}
+
+.border-brand-primary {
+  border-color: var(--color-brand-primary);
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 7px;
+  height: 7px;
+}
+::-webkit-scrollbar-track {
+  background: #f8fafc;
+}
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 9999px;
+  border: 1px solid transparent;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #b45309;
+}
+
+/* Slim Custom Scrollbar Class */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: #d1d5db;
+  border-radius: 9999px;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: #92400e;
+}
+
+.scrollbar-none::-webkit-scrollbar {
+  display: none;
+}
+.scrollbar-none {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* Glassmorphism & Gold Border Glow */
+.glass-panel {
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(217, 119, 6, 0.2);
+}
+
+.gold-shimmer {
+  position: relative;
+  overflow: hidden;
+}
+.gold-shimmer::after {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: linear-gradient(
+    60deg,
+    transparent 30%,
+    rgba(251, 191, 36, 0.15) 50%,
+    transparent 70%
+  );
+  transform: rotate(30deg);
+  animation: shimmer 6s infinite linear;
+  pointer-events: none;
+}
+
+@keyframes shimmer {
+  0% { transform: translateX(-100%) rotate(30deg); }
+  100% { transform: translateX(100%) rotate(30deg); }
+}
+
+/* Academic Printable Styles */
+@media print {
+  header, footer, nav, .no-print {
+    display: none !important;
+  }
+  body {
+    background: white !important;
+    color: black !important;
+  }
+  .print-area {
+    width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+}

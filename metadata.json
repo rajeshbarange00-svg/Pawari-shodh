@@ -1,0 +1,6 @@
+{
+  "name": "पवारी शोध पत्रिका - Pawari Shodh Patrika",
+  "description": "अंतर्राष्ट्रीय बहुविषयक शोध पत्रिका एवं पवारी साहित्य CMS (Pawari Shodh Patrika Journal & Portal)",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

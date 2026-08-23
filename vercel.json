@@ -1,0 +1,34 @@
+{
+  "redirects": [
+    { "source": "/about-us", "destination": "/about", "permanent": true },
+    { "source": "/contact-us", "destination": "/contact", "permanent": true },
+    { "source": "/current", "destination": "/current-issue", "permanent": true },
+    { "source": "/archive", "destination": "/archives", "permanent": true },
+    { "source": "/editorial_board", "destination": "/editorial-board", "permanent": true },
+    { "source": "/author_guidelines", "destination": "/author-guidelines", "permanent": true },
+    { "source": "/submit_manuscript", "destination": "/submit-manuscript", "permanent": true },
+    { "source": "/books-blogs", "destination": "/books-literature", "permanent": true },
+    { "source": "/pawari-shabdkosh", "destination": "/shabdkosh", "permanent": true },
+    { "source": "/pawari-paheli", "destination": "/paheli", "permanent": true },
+    { "source": "/pawari-lokgeet", "destination": "/lokgeet", "permanent": true },
+    { "source": "/pawari-quiz", "destination": "/quiz", "permanent": true }
+  ],
+  "rewrites": [
+    {
+      "source": "/googlec4979dd8f0a110d6.html",
+      "destination": "/googlec4979dd8f0a110d6.html"
+    },
+    {
+      "source": "/sitemap.xml",
+      "destination": "/sitemap.xml"
+    },
+    {
+      "source": "/robots.txt",
+      "destination": "/robots.txt"
+    },
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
+    }
+  ]
+}

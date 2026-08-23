@@ -1,0 +1,23 @@
+[
+  {
+    "origin": [
+      "https://pawari-shodh-patrika.vercel.app",
+      "https://pawari-shodh.vercel.app",
+      "http://localhost:3000"
+    ],
+    "method": [
+      "GET",
+      "HEAD",
+      "POST",
+      "PUT",
+      "DELETE",
+      "OPTIONS"
+    ],
+    "responseHeader": [
+      "Content-Type",
+      "Content-Length",
+      "ETag"
+    ],
+    "maxAgeSeconds": 3600
+  }
+]

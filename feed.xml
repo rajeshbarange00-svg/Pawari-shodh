@@ -1,0 +1,47 @@
+﻿<?xml version=1.0 encoding=UTF-8?>
+<rss version=2.0 xmlns:atom=http://www.w3.org/2005/Atom xmlns:dc=http://purl.org/dc/elements/1.1/>
+  <channel>
+    <title>Pawari Shodh Patrika (पवारी शोध पत्रिका)</title>
+    <link>https://pawari-shodh-patrika.vercel.app</link>
+    <description>An International Peer-Reviewed Refereed Multidisciplinary Journal centered on Pawari language, culture, literature, and regional linguistics.</description>
+    <language>hi</language>
+    <lastBuildDate>Thu, 20 Aug 2026 08:00:00 GMT</lastBuildDate>
+    <atom:link href=https://pawari-shodh-patrika.vercel.app/feed.xml rel=self type=application/rss+xml/>
+    
+    <item>
+      <title>क्षत्रिय पवार (भोयर पवार) कुल-गोत्र, उपनाम एवं उनका भाषावैज्ञानिक अपभ्रंश</title>
+      <link>https://pawari-shodh-patrika.vercel.app/article/kshatriya-pawar-bhoyar-pawar-clans-surnames-apabhramsha</link>
+      <guid isPermaLink=true>https://pawari-shodh-patrika.vercel.app/article/kshatriya-pawar-bhoyar-pawar-clans-surnames-apabhramsha</guid>
+      <dc:creator>डॉ. बी. एल. पवार</dc:creator>
+      <pubDate>Mon, 01 Jun 2026 00:00:00 GMT</pubDate>
+      <description>पवार (भोयर पवार) जाति के विभिन्न कुल-गोत्रों, उपनामों (Surnames) की उत्पत्ति, ऐतिहासिक परिप्रेक्ष्य तथा भाषावैज्ञानिक अपभ्रंश का विस्तृत शोधपरक विश्लेषण।</description>
+    </item>
+
+    <item>
+      <title>पवारी बोली का उद्भव, विकास एवं उसकी ध्वन्यात्मक विशेषताएं</title>
+      <link>https://pawari-shodh-patrika.vercel.app/article/origin-evolution-phonetic-characteristics-pawari-dialect</link>
+      <guid isPermaLink=true>https://pawari-shodh-patrika.vercel.app/article/origin-evolution-phonetic-characteristics-pawari-dialect</guid>
+      <dc:creator>डॉ. कैलाश पवार</dc:creator>
+      <pubDate>Mon, 01 Jun 2026 00:00:00 GMT</pubDate>
+      <description>मध्य भारत के सतपुड़ा अंचल (बैतूल-छिंदवाड़ा) में बोली जाने वाली पवारी (भोयरी) बोली की उत्पत्ति, ऐतिहासिक विकासक्रम तथा उसके ध्वनिविज्ञान (Phonetics) का वैज्ञानिक अध्ययन।</description>
+    </item>
+
+    <item>
+      <title>पवारी संस्कृति के विविध रंग: लोकगीतों के परिप्रेक्ष्य में</title>
+      <link>https://pawari-shodh-patrika.vercel.app/article/diverse-shades-pawari-culture-folk-songs</link>
+      <guid isPermaLink=true>https://pawari-shodh-patrika.vercel.app/article/diverse-shades-pawari-culture-folk-songs</guid>
+      <dc:creator>श्रीमती रेखा पंवार</dc:creator>
+      <pubDate>Mon, 01 Jun 2026 00:00:00 GMT</pubDate>
+      <description>पवारी लोकगीतों में प्रतिबिंबित होने वाली सामाजिक चेतना, पारिवारिक संबंध, ऋतु वर्णन तथा पारम्परिक सांस्कृतिक मूल्यों का विश्लेषणात्मक अध्ययन।</description>
+    </item>
+
+    <item>
+      <title>पवारी लोककथाओं में पर्यावरण चेतना एवं नृ-पारिस्थितिकीय विवेक</title>
+      <link>https://pawari-shodh-patrika.vercel.app/article/environmental-consciousness-ethno-ecological-wisdom-pawari-folktales</link>
+      <guid isPermaLink=true>https://pawari-shodh-patrika.vercel.app/article/environmental-consciousness-ethno-ecological-wisdom-pawari-folktales</guid>
+      <dc:creator>डॉ. अनिता मालवीय</dc:creator>
+      <pubDate>Mon, 01 Jun 2026 00:00:00 GMT</pubDate>
+      <description>ताप्ती नदी घाटी एवं सतपुड़ा अंचल की पवारी मौखिक लोककथाओं में निहित प्रकृति संरक्षण, जल-जंगल-जमीन की चेतना और नृ-पारिस्थितिकीय ज्ञान का अध्ययन।</description>
+    </item>
+  </channel>
+</rss>

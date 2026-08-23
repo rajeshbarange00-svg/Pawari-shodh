@@ -1,0 +1,109 @@
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isAdmin() {
+      return isAuthenticated() && (
+        request.auth.token.admin == true ||
+        (request.auth.token.email != null &&
+         request.auth.token.email.lower() == 'rupeshpawar10@gmail.com')
+      );
+    }
+
+    function isImage() {
+      return request.resource.contentType.matches(
+        'image/(jpeg|jpg|png|webp|gif|svg\+xml)'
+      );
+    }
+
+    function isDocument() {
+      return request.resource.contentType.matches(
+        'application/(pdf|msword|vnd\.openxmlformats-officedocument\.wordprocessingml\.document|octet-stream|plain)'
+      );
+    }
+
+    function isAllowedUpload() {
+      return isImage() || isDocument();
+    }
+
+    match /articles/{articleId}/{fileName} {
+      allow read: if true;
+      allow create, update: if isAdmin()
+        && isDocument()
+        && request.resource.size <= 50 * 1024 * 1024;
+      allow delete: if isAdmin();
+    }
+
+    match /documents/{fileName} {
+      allow read: if true;
+      allow create, update: if isAdmin()
+        && isAllowedUpload()
+        && request.resource.size <= 50 * 1024 * 1024;
+      allow delete: if isAdmin();
+    }
+
+    match /books/{fileName} {
+      allow read: if true;
+      allow create, update: if isAdmin()
+        && isAllowedUpload()
+        && request.resource.size <= 50 * 1024 * 1024;
+      allow delete: if isAdmin();
+    }
+
+    match /editorial_photos/{fileName} {
+      allow read: if true;
+      allow create, update: if isAdmin()
+        && isImage()
+        && request.resource.size <= 10 * 1024 * 1024;
+      allow delete: if isAdmin();
+    }
+
+    match /users/{uid}/images/{fileName} {
+      allow read: if isAuthenticated() && request.auth.uid == uid;
+      allow create, update: if isAuthenticated()
+        && request.auth.uid == uid
+        && isImage()
+        && request.resource.size <= 10 * 1024 * 1024;
+      allow delete: if isAuthenticated() && request.auth.uid == uid;
+    }
+
+    match /users/{uid}/documents/{fileName} {
+      allow read: if isAuthenticated() && request.auth.uid == uid;
+      allow create, update: if isAuthenticated()
+        && request.auth.uid == uid
+        && isAllowedUpload()
+        && request.resource.size <= 25 * 1024 * 1024;
+      allow delete: if isAuthenticated() && request.auth.uid == uid;
+    }
+
+    match /manuscripts/{fileName} {
+      allow read: if true;
+      allow create: if isAllowedUpload()
+        && request.resource.size <= 25 * 1024 * 1024;
+      allow update, delete: if isAdmin();
+    }
+
+    match /contributions/{fileName} {
+      allow read: if true;
+      allow create: if isAllowedUpload()
+        && request.resource.size <= 15 * 1024 * 1024;
+      allow update, delete: if isAdmin();
+    }
+
+    match /media/{allSubPaths=**} {
+      allow read: if true;
+      allow create, update: if isAdmin()
+        && isAllowedUpload()
+        && request.resource.size <= 50 * 1024 * 1024;
+      allow delete: if isAdmin();
+    }
+
+    match /{allPaths=**} {
+      allow read: if true;
+      allow write, delete: if false;
+    }
+  }
+}

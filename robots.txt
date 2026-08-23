@@ -1,0 +1,27 @@
+# Allow search engine crawlers and academic bots (Googlebot, Google-Scholar, Bingbot)
+User-agent: *
+Allow: /
+Allow: /article/
+Allow: /current-issue
+Allow: /archives
+Allow: /issue/
+Allow: /books-literature
+Allow: /editorial-board
+Allow: /about
+Allow: /contact
+Allow: /author-guidelines
+Allow: /submit-manuscript
+Allow: /shabdkosh
+Allow: /paheli
+Allow: /lokgeet
+Allow: /quiz
+
+# Disallow CMS Admin and private routes
+Disallow: /admin
+Disallow: /admin/
+Disallow: /login
+Disallow: /dashboard
+Disallow: /editor
+
+# Sitemap Location
+Sitemap: https://pawari-shodh-patrika.vercel.app/sitemap.xml
