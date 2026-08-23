@@ -1,0 +1,109 @@
+name: Security Hardening
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  harden:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Apply auth and audit-log hardening
+        shell: python
+        run: |
+          from pathlib import Path
+          import re
+
+          changed = []
+
+          auth_path = Path('src/lib/AuthContext.tsx')
+          auth = auth_path.read_text(encoding='utf-8')
+
+          # Never keep an application-managed plaintext password in Firestore profiles.
+          auth_new = auth.replace("      password: pass,\n", "")
+
+          # Never create fake/local users when Firebase Auth provisioning fails.
+          auth_new = auth_new.replace(
+              """    } catch (err: any) {\n      console.warn('Secondary auth user creation warning:', err);\n      if (err?.code === 'auth/email-already-in-use') {\n        throw new Error(`User with email \"${cleanEmail}\" already exists in Firebase Auth.`);\n      }\n      newUid = 'user_' + Date.now() + '_' + Math.random().toString(36).substring(2, 7);\n    }\n""",
+              """    } catch (err: any) {\n      console.error('Secondary auth user creation failed:', err);\n      if (err?.code === 'auth/email-already-in-use') {\n        throw new Error(`User with email \"${cleanEmail}\" already exists in Firebase Auth.`);\n      }\n      throw new Error('Firebase Auth could not create this account. Please try again.');\n    }\n"""
+          )
+
+          # Remove the legacy password-bypass fallback after Firebase Auth fails.
+          pattern = re.compile(
+              r"    } catch \(firebaseErr: any\) \{.*?    throw new Error\('लॉगिन विफल रहा। कृपया अपनी क्रेडेंशियल जांचें।'\);\n  };")
+          replacement = """    } catch (firebaseErr: any) {\n      console.error('Firebase Auth login failed:', firebaseErr);\n      const code = firebaseErr?.code;\n      if (code === 'auth/wrong-password' || code === 'auth/invalid-credential' || code === 'auth/user-not-found') {\n        throw new Error('गलत ईमेल या पासवर्ड।');\n      }\n      throw new Error(firebaseErr?.message || 'लॉगिन विफल रहा। कृपया अपनी क्रेडेंशियल जांचें।');\n    }\n  };"""
+          auth_new, n = pattern.subn(replacement, auth_new, count=1)
+
+          # Legacy ownerQuickLogin bypassed Firebase Authentication with any non-empty PIN.
+          owner_pattern = re.compile(
+              r"  const ownerQuickLogin = async \(email: string, pin: string\) => \{.*?\n  \};",
+              re.S,
+          )
+          owner_replacement = """  const ownerQuickLogin = async (email: string, pin: string) => {\n    const cleanEmail = email.toLowerCase().trim();\n    const isOwner = AUTHORIZED_OWNER_EMAILS.some(e => e.toLowerCase() === cleanEmail);\n    if (!isOwner) {\n      throw new Error(`अनधिकृत खाता (${cleanEmail})! केवल अधिकृत संचालक ही सुपर एडमिन लॉगिन कर सकते हैं।`);\n    }\n    return login(cleanEmail, pin);\n  };"""
+          auth_new, owner_n = owner_pattern.subn(owner_replacement, auth_new, count=1)
+
+          # Do not retain a localStorage-only privileged session when Firebase Auth is signed out.
+          local_session_pattern = re.compile(
+              r"      \} else \{\n        // If not authenticated via Firebase Auth, retain local session if valid.*?      \}\n      setLoading\(false\);",
+              re.S,
+          )
+          local_session_replacement = """      } else {\n        localStorage.removeItem('pawari_cms_user');\n        setUserProfile(null);\n      }\n      setLoading(false);"""
+          auth_new, local_n = local_session_pattern.subn(local_session_replacement, auth_new, count=1)
+
+          if auth_new != auth:
+              auth_path.write_text(auth_new, encoding='utf-8')
+              changed.append(str(auth_path))
+
+          users_path = Path('src/components/admin/UsersManager.tsx')
+          users = users_path.read_text(encoding='utf-8')
+          users_new = users.replace(
+              "const [deletingUser, setDeletingUser] = useState<{ uid: string; name: string } | null>(null);",
+              "const [deletingUser, setDeletingUser] = useState<{ uid: string; name: string; email: string } | null>(null);"
+          )
+          users_new = users_new.replace(
+              "setDeletingUser({ uid: user.uid, name: user.display_name || user.email })",
+              "setDeletingUser({ uid: user.uid, name: user.display_name || user.email, email: user.email || '' })"
+          )
+          users_new = users_new.replace(
+              "title: `Deleted User Account (${deletingUser.email})`,",
+              "title: `Deleted User Account (${deletingUser.email || deletingUser.name})`,"
+          )
+          if users_new != users:
+              users_path.write_text(users_new, encoding='utf-8')
+              changed.append(str(users_path))
+
+          cms_path = Path('src/lib/CmsContext.tsx')
+          cms = cms_path.read_text(encoding='utf-8')
+          cms_old = """    const currentUser = auth.currentUser;\n    const newLog: ActivityLogItem = {\n      ...entry,\n      id: 'log_' + Date.now() + '_' + Math.floor(Math.random() * 1000),\n      timestamp: new Date().toISOString(),\n      performedBy: entry.performedBy || currentUser?.displayName || currentUser?.email || 'Admin User',\n      performedByEmail: entry.performedByEmail || currentUser?.email || ''\n    };"""
+          cms_new_block = """    const currentUser = auth.currentUser;\n    let localProfile: any = null;\n    try {\n      localProfile = JSON.parse(localStorage.getItem('pawari_cms_user') || 'null');\n    } catch (e) {}\n    const actorEmail = currentUser?.email || localProfile?.email || '';\n    const actorName = currentUser?.displayName || localProfile?.display_name || actorEmail || 'Admin User';\n    const newLog: ActivityLogItem = {\n      ...entry,\n      id: 'log_' + Date.now() + '_' + Math.floor(Math.random() * 1000),\n      timestamp: new Date().toISOString(),\n      performedBy: entry.performedBy || actorName,\n      performedByEmail: entry.performedByEmail || actorEmail\n    };"""
+          if cms_old in cms:
+              cms = cms.replace(cms_old, cms_new_block, 1)
+              cms_path.write_text(cms, encoding='utf-8')
+              changed.append(str(cms_path))
+
+          if not changed:
+              print('No security-hardening changes were necessary.')
+          else:
+              print('Patched:', ', '.join(changed))
+
+      - name: Commit security fixes
+        if: success()
+        shell: bash
+        run: |
+          if git diff --quiet; then
+            echo "No changes to commit."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add src/lib/AuthContext.tsx src/components/admin/UsersManager.tsx src/lib/CmsContext.tsx
+          git commit -m "security: remove auth bypass and plaintext password handling"
+          git push
