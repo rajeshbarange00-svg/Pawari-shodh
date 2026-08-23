@@ -1,0 +1,52 @@
+name: Auth Fallback Hardening
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Remove unsafe login fallback
+        shell: python
+        run: |
+          from pathlib import Path
+          import re
+
+          path = Path('src/lib/AuthContext.tsx')
+          text = path.read_text(encoding='utf-8')
+
+          # Replace the legacy Firebase-auth failure fallback with a hard failure.
+          start = text.find("    } catch (firebaseErr: any) {")
+          marker = "    throw new Error('लॉगिन विफल रहा। कृपया अपनी क्रेडेंशियल जांचें।');"
+          end_marker = text.find(marker, start)
+          if start != -1 and end_marker != -1:
+              end = end_marker + len(marker)
+              replacement = """    } catch (firebaseErr: any) {
+      console.error('Firebase Auth login failed:', firebaseErr);
+      const code = firebaseErr?.code;
+      if (code === 'auth/wrong-password' || code === 'auth/invalid-credential' || code === 'auth/user-not-found') {
+        throw new Error('गलत ईमेल या पासवर्ड।');
+      }
+      throw new Error(firebaseErr?.message || 'लॉगिन विफल रहा। कृपया अपनी क्रेडेंशियल जांचें।');"""
+              text = text[:start] + replacement + text[end:]
+              path.write_text(text, encoding='utf-8')
+              print('Auth fallback removed.')
+          else:
+              print('Auth fallback marker not found; no change needed.')
+
+      - name: Commit
+        run: |
+          if git diff --quiet; then exit 0; fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add src/lib/AuthContext.tsx
+          git commit -m "security: remove Firebase auth password bypass"
+          git push
