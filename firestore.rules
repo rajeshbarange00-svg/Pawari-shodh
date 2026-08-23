@@ -44,10 +44,18 @@ service cloud.firestore {
     match /books/{id} { allow read: if true; allow write: if isStaffOrAdmin(); }
     match /blogs/{id} { allow read: if true; allow write: if isStaffOrAdmin(); }
     match /writers/{id} { allow read: if true; allow write: if isStaffOrAdmin(); }
+
+    // Existing Pawari literature collections.
     match /shabdkosh/{id} { allow read: if true; allow write: if isStaffOrAdmin(); }
+    match /pawari_shabdkosh/{id} { allow read: if true; allow write: if isStaffOrAdmin(); }
     match /paheli/{id} { allow read: if true; allow write: if isStaffOrAdmin(); }
+    match /pawari_paheli/{id} { allow read: if true; allow write: if isStaffOrAdmin(); }
     match /lokgeet/{id} { allow read: if true; allow write: if isStaffOrAdmin(); }
+    match /pawari_lokgeet/{id} { allow read: if true; allow write: if isStaffOrAdmin(); }
     match /quizzes/{id} { allow read: if true; allow write: if isStaffOrAdmin(); }
+    match /pawari_quiz/{id} { allow read: if true; allow write: if isStaffOrAdmin(); }
+    match /quiz_leaderboard/{id} { allow read: if true; allow create: if true; allow update, delete: if isStaffOrAdmin(); }
+
     match /quiz_certificates/{id} {
       allow create, read: if true;
       allow update, delete: if isStaffOrAdmin();
@@ -76,6 +84,7 @@ service cloud.firestore {
       );
     }
     match /pages/{id} { allow read: if true; allow write: if isStaffOrAdmin(); }
+    match /homepage_sections/{id} { allow read: if true; allow write: if isStaffOrAdmin(); }
     match /media/{id} { allow read: if true; allow write: if isStaffOrAdmin(); }
     match /user_files/{id} { allow read: if true; allow write: if isStaffOrAdmin(); }
   }
