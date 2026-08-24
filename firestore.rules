@@ -1,91 +1,129 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    function isAuthenticated() { return request.auth != null; }
 
-    function isSuperAdmin() {
-      return isAuthenticated() && (
-        (request.auth.token.email != null &&
-         request.auth.token.email.lower() == 'rupeshpawar10@gmail.com') ||
-        request.auth.token.admin == true ||
-        (exists(/databases/$(database)/documents/users/$(request.auth.uid)) &&
-         get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'super_admin')
-      );
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function getUserData() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data;
     }
 
     function isStaffOrAdmin() {
-      return isAuthenticated() && (
-        isSuperAdmin() ||
-        (exists(/databases/$(database)/documents/users/$(request.auth.uid)) &&
-         get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role in [
-           'director','editor','editorial','admin','book_editor',
-           'blog_editor','other_manager'
-         ])
-      );
+      return isAuthenticated() &&
+        (
+          getUserData().role == 'super_admin' ||
+          getUserData().role == 'director' ||
+          getUserData().role == 'editor' ||
+          getUserData().role == 'editorial' ||
+          getUserData().role == 'admin' ||
+          request.auth.token.admin == true
+        );
     }
 
-    match /settings/{id} { allow read: if true; allow write: if isStaffOrAdmin(); }
-    match /roles/{id} { allow read: if true; allow write: if isSuperAdmin(); }
-    match /articles/{id} { allow read: if true; allow write: if isStaffOrAdmin(); }
-    match /issues/{id} { allow read: if true; allow write: if isStaffOrAdmin(); }
-    match /editorial_board/{id} { allow read: if true; allow write: if isStaffOrAdmin(); }
-    match /editorial_members/{id} { allow read: if true; allow write: if isStaffOrAdmin(); }
-    match /announcements/{id} { allow read: if true; allow write: if isStaffOrAdmin(); }
-    match /contact_messages/{id} {
+    match /settings/{settingId} {
+      allow read: if true;
+      allow write: if isStaffOrAdmin();
+    }
+
+    match /roles/{roleId} {
+      allow read: if true;
+      allow write: if isStaffOrAdmin();
+    }
+
+    match /articles/{articleId} {
+      allow read: if true;
+      allow write: if isStaffOrAdmin();
+    }
+
+    match /issues/{issueId} {
+      allow read: if true;
+      allow write: if isStaffOrAdmin();
+    }
+
+    match /editorial_board/{memberId} {
+      allow read: if true;
+      allow write: if isStaffOrAdmin();
+    }
+    match /editorial_members/{memberId} {
+      allow read: if true;
+      allow write: if isStaffOrAdmin();
+    }
+
+    match /announcements/{announcementId} {
+      allow read: if true;
+      allow write: if isStaffOrAdmin();
+    }
+
+    match /contact_messages/{messageId} {
       allow create: if true;
       allow read, update, delete: if isStaffOrAdmin();
     }
-    match /submissions/{id} {
+
+    match /submissions/{submissionId} {
       allow create: if true;
       allow read: if isStaffOrAdmin() ||
         (isAuthenticated() && resource.data.author_email == request.auth.token.email);
       allow update, delete: if isStaffOrAdmin();
     }
-    match /books/{id} { allow read: if true; allow write: if isStaffOrAdmin(); }
-    match /blogs/{id} { allow read: if true; allow write: if isStaffOrAdmin(); }
-    match /writers/{id} { allow read: if true; allow write: if isStaffOrAdmin(); }
 
-    // Existing Pawari literature collections.
-    match /shabdkosh/{id} { allow read: if true; allow write: if isStaffOrAdmin(); }
-    match /pawari_shabdkosh/{id} { allow read: if true; allow write: if isStaffOrAdmin(); }
-    match /paheli/{id} { allow read: if true; allow write: if isStaffOrAdmin(); }
-    match /pawari_paheli/{id} { allow read: if true; allow write: if isStaffOrAdmin(); }
-    match /lokgeet/{id} { allow read: if true; allow write: if isStaffOrAdmin(); }
-    match /pawari_lokgeet/{id} { allow read: if true; allow write: if isStaffOrAdmin(); }
-    match /quizzes/{id} { allow read: if true; allow write: if isStaffOrAdmin(); }
-    match /pawari_quiz/{id} { allow read: if true; allow write: if isStaffOrAdmin(); }
-    match /quiz_leaderboard/{id} { allow read: if true; allow create: if true; allow update, delete: if isStaffOrAdmin(); }
+    match /books/{bookId} {
+      allow read: if true;
+      allow write: if isStaffOrAdmin();
+    }
+    match /blogs/{blogId} {
+      allow read: if true;
+      allow write: if isStaffOrAdmin();
+    }
 
-    match /quiz_certificates/{id} {
-      allow create, read: if true;
+    match /shabdkosh/{shabdkoshId} {
+      allow read: if true;
+      allow write: if isStaffOrAdmin();
+    }
+    match /paheli/{paheliId} {
+      allow read: if true;
+      allow write: if isStaffOrAdmin();
+    }
+    match /lokgeet/{lokgeetId} {
+      allow read: if true;
+      allow write: if isStaffOrAdmin();
+    }
+    match /quizzes/{quizId} {
+      allow read: if true;
+      allow write: if isStaffOrAdmin();
+    }
+    match /quiz_certificates/{certId} {
+      allow create: if true;
+      allow read: if true;
       allow update, delete: if isStaffOrAdmin();
     }
-    match /public_contributions/{id} {
+
+    match /public_contributions/{contribId} {
       allow create: if true;
       allow read, update, delete: if isStaffOrAdmin();
     }
-    match /activity_logs/{id} {
+
+    match /activity_logs/{logId} {
       allow read, create: if isStaffOrAdmin();
       allow update, delete: if false;
     }
+
     match /users/{userId} {
       allow read: if isAuthenticated() && (request.auth.uid == userId || isStaffOrAdmin());
-      allow create: if isStaffOrAdmin() || (
-        isAuthenticated() &&
-        request.auth.uid == userId &&
-        request.resource.data.role == 'public' &&
-        request.resource.data.email == request.auth.token.email
-      );
-      allow update, delete: if isStaffOrAdmin() || (
-        isAuthenticated() &&
-        request.auth.uid == userId &&
-        request.resource.data.role == resource.data.role &&
-        request.resource.data.email == resource.data.email
-      );
+      allow write: if isStaffOrAdmin() ||
+        (isAuthenticated() && request.auth.uid == userId &&
+         request.resource.data.role == resource.data.role);
+      allow create: if isStaffOrAdmin() ||
+        (isAuthenticated() && request.auth.uid == userId &&
+         (!('role' in request.resource.data) || request.resource.data.role == 'user'));
     }
-    match /pages/{id} { allow read: if true; allow write: if isStaffOrAdmin(); }
-    match /homepage_sections/{id} { allow read: if true; allow write: if isStaffOrAdmin(); }
-    match /media/{id} { allow read: if true; allow write: if isStaffOrAdmin(); }
-    match /user_files/{id} { allow read: if true; allow write: if isStaffOrAdmin(); }
+
+    match /user_files/{fileId} {
+      allow read: if true;
+      allow create: if isAuthenticated() && request.resource.data.owner_uid == request.auth.uid;
+      allow update, delete: if isStaffOrAdmin() ||
+        (isAuthenticated() && resource.data.owner_uid == request.auth.uid);
+    }
   }
 }
