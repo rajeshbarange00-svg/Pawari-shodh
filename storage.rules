@@ -1,117 +1,90 @@
 rules_version = '2';
 service firebase.storage {
   match /b/{bucket}/o {
+
     function isAuthenticated() {
       return request.auth != null;
     }
 
-    function isStaffOrAdmin() {
-      return isAuthenticated() && (
-        request.auth.token.admin == true ||
-        (request.auth.token.email != null &&
-         request.auth.token.email.lower() in [
-           'rupeshpawar10@gmail.com',
-           'rajeshbarange00@gmail.com'
-         ]) ||
-        firestore.exists(/databases/(default)/documents/users/$(request.auth.uid)) &&
-        firestore.get(/databases/(default)/documents/users/$(request.auth.uid)).data.role in [
-          'super_admin','director','editor','editorial','admin',
-          'book_editor','blog_editor','other_manager'
-        ]
-      );
-    }
-
     function isImage() {
-      return request.resource.contentType.matches(
-        'image/(jpeg|jpg|png|webp|gif|svg\\+xml)'
-      );
+      return request.resource.contentType.matches('image/(jpeg|jpg|png|webp|gif|svg\\+xml)');
     }
 
     function isDocument() {
-      return request.resource.contentType.matches(
-        'application/(pdf|msword|vnd\\.openxmlformats-officedocument\\.wordprocessingml\\.document|octet-stream|plain)'
-      );
+      return request.resource.contentType.matches('application/(pdf|msword|vnd\\.openxmlformats-officedocument\\.wordprocessingml\\.document|octet-stream|plain)');
     }
 
-    function isAllowedUpload() {
-      return isImage() || isDocument();
+    function isAudioOrVideo() {
+      return request.resource.contentType.matches('(audio|video)/.*');
     }
 
-    match /articles/{articleId}/{fileName} {
-      allow read: if true;
-      allow create, update: if isStaffOrAdmin()
-        && isDocument()
-        && request.resource.size <= 50 * 1024 * 1024;
-      allow delete: if isStaffOrAdmin();
-    }
-
-    match /documents/{fileName} {
-      allow read: if true;
-      allow create, update: if isStaffOrAdmin()
-        && isAllowedUpload()
-        && request.resource.size <= 50 * 1024 * 1024;
-      allow delete: if isStaffOrAdmin();
-    }
-
-    match /books/{fileName} {
-      allow read: if true;
-      allow create, update: if isStaffOrAdmin()
-        && isAllowedUpload()
-        && request.resource.size <= 50 * 1024 * 1024;
-      allow delete: if isStaffOrAdmin();
-    }
-
-    match /editorial_photos/{fileName} {
-      allow read: if true;
-      allow create, update: if isStaffOrAdmin()
-        && isImage()
-        && request.resource.size <= 10 * 1024 * 1024;
-      allow delete: if isStaffOrAdmin();
+    function isStaffOrAdmin() {
+      return isAuthenticated() &&
+        firestore.exists(/databases/(default)/documents/users/$(request.auth.uid)) &&
+        firestore.get(/databases/(default)/documents/users/$(request.auth.uid)).data.role in
+          ['super_admin', 'director', 'editor', 'editorial', 'admin'];
     }
 
     match /users/{uid}/images/{fileName} {
-      allow read: if isAuthenticated() && request.auth.uid == uid;
-      allow create, update: if isAuthenticated()
-        && request.auth.uid == uid
-        && isImage()
-        && request.resource.size <= 10 * 1024 * 1024;
+      allow read: if true;
+      allow write, create, update: if isImage() && request.resource.size <= 15 * 1024 * 1024
+                                    && isAuthenticated() && request.auth.uid == uid;
       allow delete: if isAuthenticated() && request.auth.uid == uid;
     }
 
     match /users/{uid}/documents/{fileName} {
-      allow read: if isAuthenticated() && request.auth.uid == uid;
-      allow create, update: if isAuthenticated()
-        && request.auth.uid == uid
-        && isAllowedUpload()
-        && request.resource.size <= 25 * 1024 * 1024;
+      allow read: if true;
+      allow write, create, update: if (isDocument() || isImage()) && request.resource.size <= 35 * 1024 * 1024
+                                    && isAuthenticated() && request.auth.uid == uid;
       allow delete: if isAuthenticated() && request.auth.uid == uid;
     }
 
     match /manuscripts/{fileName} {
       allow read: if true;
-      allow create: if isAllowedUpload()
-        && request.resource.size <= 25 * 1024 * 1024;
-      allow update, delete: if isStaffOrAdmin();
+      allow create, update: if isAuthenticated() && (isDocument() || isImage())
+                             && request.resource.size <= 50 * 1024 * 1024;
+      allow delete: if isStaffOrAdmin();
+    }
+
+    match /editorial_photos/{fileName} {
+      allow read: if true;
+      allow write, create, update: if isStaffOrAdmin() && isImage()
+                                    && request.resource.size <= 20 * 1024 * 1024;
+      allow delete: if isStaffOrAdmin();
+    }
+
+    match /documents/{fileName} {
+      allow read: if true;
+      allow write, create, update: if isStaffOrAdmin() && (isDocument() || isImage())
+                                    && request.resource.size <= 50 * 1024 * 1024;
+      allow delete: if isStaffOrAdmin();
+    }
+
+    match /books/{fileName} {
+      allow read: if true;
+      allow write, create, update: if isStaffOrAdmin() && (isDocument() || isImage())
+                                    && request.resource.size <= 50 * 1024 * 1024;
+      allow delete: if isStaffOrAdmin();
+    }
+
+    match /media/{fileName} {
+      allow read: if true;
+      allow write, create, update: if isStaffOrAdmin()
+                                    && (isImage() || isAudioOrVideo() || isDocument())
+                                    && request.resource.size <= 50 * 1024 * 1024;
+      allow delete: if isStaffOrAdmin();
     }
 
     match /contributions/{fileName} {
       allow read: if true;
-      allow create: if isAllowedUpload()
-        && request.resource.size <= 15 * 1024 * 1024;
-      allow update, delete: if isStaffOrAdmin();
-    }
-
-    match /media/{allSubPaths=**} {
-      allow read: if true;
-      allow create, update: if isStaffOrAdmin()
-        && isAllowedUpload()
-        && request.resource.size <= 50 * 1024 * 1024;
+      allow create, update: if isAuthenticated() && request.resource.size <= 25 * 1024 * 1024;
       allow delete: if isStaffOrAdmin();
     }
 
     match /{allPaths=**} {
       allow read: if true;
-      allow write, delete: if false;
+      allow write: if isAuthenticated() && request.resource.size <= 35 * 1024 * 1024;
+      allow delete: if isStaffOrAdmin();
     }
   }
 }
